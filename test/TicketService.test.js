@@ -242,7 +242,17 @@ describe("Check purchaseTickets requires at least 1 adult ticket", () => {
 
 // Check seat reservation made
 describe("Check purchaseTickets reserves seats", () => {
-    test("should have called reserveSeat for valid order", () => {
+    test("should have called reserveSeat for valid order, when SeatReservationService injected in constructor", () => {
+        const reserveSeatMock = jest.spyOn(
+            SeatReservationService.prototype,
+            "reserveSeat"
+        );
+        const ticketService = new TicketService(new SeatReservationService());
+        ticketService.purchaseTickets(1, new TicketTypeRequest("ADULT", 1));
+
+        expect(reserveSeatMock).toHaveBeenCalled();
+    });
+    test("should have called reserveSeat for valid order, when SeatReservationService not supplied", () => {
         const reserveSeatMock = jest.spyOn(
             SeatReservationService.prototype,
             "reserveSeat"
@@ -256,7 +266,20 @@ describe("Check purchaseTickets reserves seats", () => {
 
 // Check paymentservice called
 describe("Check purchaseTickets makes a payment", () => {
-    test("should have called makePayment for valid order", () => {
+    test("should have called makePayment for valid order, when TicketPaymentService injected in constructor", () => {
+        const makePaymentMock = jest.spyOn(
+            TicketPaymentService.prototype,
+            "makePayment"
+        );
+        const ticketService = new TicketService(
+            new SeatReservationService(),
+            new TicketPaymentService()
+        );
+        ticketService.purchaseTickets(1, new TicketTypeRequest("ADULT", 1));
+
+        expect(makePaymentMock).toHaveBeenCalled();
+    });
+    test("should have called makePayment for valid order, when TicketPaymentService not supplied", () => {
         const makePaymentMock = jest.spyOn(
             TicketPaymentService.prototype,
             "makePayment"

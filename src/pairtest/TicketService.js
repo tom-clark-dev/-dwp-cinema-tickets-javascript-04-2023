@@ -10,9 +10,18 @@ export default class TicketService {
     #maxTickets;
     #prices;
 
-    constructor() {
+    #iSeatReservation;
+    #iTicketPayment;
+
+    constructor(seatReservationService, ticketPaymentService) {
         this.#maxTickets = this.#getMaxNoOfTickets();
         this.#prices = this.#getPrices();
+
+        this.#iSeatReservation =
+            seatReservationService || new SeatReservationService();
+        this.#iTicketPayment =
+            ticketPaymentService || new TicketPaymentService();
+
         Object.freeze(this);
     }
 
@@ -24,10 +33,10 @@ export default class TicketService {
         this.#checkOrderIsValid(accountId, ticketTypeRequests);
 
         this.#noOfSeats = this.#getTotalSeats(ticketTypeRequests);
-        new SeatReservationService().reserveSeat(accountId, this.#noOfSeats);
+        this.#iSeatReservation.reserveSeat(accountId, this.#noOfSeats);
 
         this.#totalCost = this.#getTotalCost(ticketTypeRequests);
-        new TicketPaymentService().makePayment(accountId, this.#totalCost);
+        this.#iTicketPayment.makePayment(accountId, this.#totalCost);
 
         return { noOfSeats: this.#noOfSeats, totalCost: this.#totalCost };
     }
